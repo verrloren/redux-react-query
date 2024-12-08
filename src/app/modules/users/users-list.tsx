@@ -4,7 +4,7 @@ import { UserId, usersSlice } from "./users.slice";
 import { useDispatch } from "react-redux";
 import { fetchUsers } from "./model/fetch-users";
 import { useRouter } from "next/navigation";
-import { AppDispatch } from "@/store/store";
+import { AppDispatch } from "@/shared/redux";
 
 export function UsersList() {
   const [sortType, setSortType] = useState<"asc" | "desc">("asc");

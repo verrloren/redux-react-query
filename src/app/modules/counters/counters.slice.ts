@@ -1,4 +1,4 @@
-import { AppState } from "@/store/store";
+import { AppState } from "@/shared/redux";
 import { createAction, createReducer } from "@reduxjs/toolkit";
 
 type CounterState = {

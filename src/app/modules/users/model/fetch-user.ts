@@ -1,4 +1,4 @@
-import { AppThunk } from "@/store/store";
+import { AppThunk } from "@/shared/redux";
 import { UserId, usersSlice } from "../users.slice";
 
 export const fetchUser = (userId: UserId): AppThunk => (dispatch, getState, { api }) => {

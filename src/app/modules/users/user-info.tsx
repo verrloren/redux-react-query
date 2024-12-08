@@ -4,7 +4,8 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { fetchUser } from "./model/fetch-user";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store/store";
+import { AppDispatch } from "@/shared/redux";
+import { deleteUser } from "./model/delete-user";
 
 export function UserInfo() {
 
@@ -12,10 +13,10 @@ export function UserInfo() {
 	const { userId = ""  } = useParams<{ userId: UserId }>();
 	const dispatch = useDispatch<AppDispatch>();
 	const isPending = useAppSelector(usersSlice.selectors.selectIsFetchUserPending);
+	const isDeletePending = useAppSelector(usersSlice.selectors.selectIsDeleteUserPending);
   const user = useAppSelector((state) => usersSlice.selectors.selectUserById(state, userId));
 
 	useEffect(() => {
-		console.log('before dispatch', userId)
 		dispatch(fetchUser(userId));
 	}, [dispatch, userId])
 	
@@ -23,6 +24,11 @@ export function UserInfo() {
   const handleBackButtonClick = () => {
     router.push("/users")
   };
+
+	const handleDelete = () => {
+		dispatch(deleteUser(userId)).then(() => router.push("/users"));
+	}
+
 	if (isPending || !user) {
 		return <div>Loading...</div>
 	}
@@ -37,6 +43,7 @@ export function UserInfo() {
       </button>
       <h2 className="text-3xl">{user.name}</h2>
 		<p className="text-xl">{user.description}</p>
+		<button disabled={isDeletePending} className="bg-red-500 hover:bg-red-700 text-white font-bold py-8 px-4" onClick={handleDelete}>Delete</button>
     </div>
 	)
 }

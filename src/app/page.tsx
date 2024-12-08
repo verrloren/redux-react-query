@@ -1,12 +1,11 @@
 'use client';
 import Image from "next/image";
-import { UsersList } from "./modules/users/users-list";
-import { Counters } from "./modules/counters/counters";
+import { fetchUsers } from "./modules/users/model/fetch-users";
+import { store } from "@/store/store";
 
 export default function Home() {
 
-
-	
+	store.dispatch(fetchUsers);
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -20,11 +19,6 @@ export default function Home() {
           priority
         />
 
-				<div className="flex gap-x-2">
-					<Counters />
-				</div>
-
-				<UsersList />
       </main>
     </div>
   );

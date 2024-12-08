@@ -1,0 +1,24 @@
+{
+	"users":  [
+		{
+			"id": "user1",
+			"name": "John Doe",
+			"description": "John Doe is a web developer and designer"
+		},
+		{
+			"id": "user2",
+			"name": "Jane Doe",
+			"description": "Jane Doe is a web developer and designer"
+		},
+		{
+			"id": "user3",
+			"name": "Tom Doe",
+			"description": "Tom Doe is a web developer and designer"
+		},
+		{
+			"id": "user4",
+			"name": "Jerry Doe",
+			"description": "Jerry Doe is a web developer and designer"
+		}
+	]
+}

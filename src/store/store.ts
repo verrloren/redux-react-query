@@ -1,17 +1,28 @@
-import {  countersReducer } from "@/app/modules/counters/counters.slice";
-import { initialUsersList, usersSlice } from "@/app/modules/users/users.slice";
-import {  configureStore } from "@reduxjs/toolkit";
+import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import { countersReducer } from "@/app/modules/counters/counters.slice";
+import { usersSlice } from "@/app/modules/users/users.slice";
+import { api } from "@/shared/api";
 
+const extraArgument = {
+  api,
+};
 
 export const store = configureStore({
   reducer: {
-		[usersSlice.name]: usersSlice.reducer,
-		counters: countersReducer,
-	},
+    [usersSlice.name]: usersSlice.reducer,
+    counters: countersReducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({ thunk: { extraArgument } }),
 });
-
-// Dispatch the action after the store is configured
-store.dispatch(usersSlice.actions.stored({ users: initialUsersList }));
 
 export type AppState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+export type AppThunk<ReturnType = void> = ThunkAction<
+  ReturnType,
+  AppState,
+  typeof extraArgument,
+  Action<string>
+>;
+
+export default store;

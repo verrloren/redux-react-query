@@ -1,6 +1,4 @@
-import { createAppSelector } from "@/app/hooks/react-redux";
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { AppState } from "@/store/store";
+import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export type UserId = string;
 
@@ -11,10 +9,15 @@ export type User = {
 };
 
 type UsersState = {
-  entities: Record<UserId, User>;
+  entities: Record<UserId, User | undefined>;
   ids: UserId[]; //для того чтобы выводить дефолтный список который пришел с бека
-  selectedUserId: UserId | undefined;
+	//информация о процессе запроса
+	fetchUsersStatus: "idle" | "pending" | "success" | "failed";
+	fetchUserStatus: "idle" | "pending" | "success" | "failed";
 };
+
+
+
 
 export const initialUsersList: User[] = Array.from({ length: 3000 }, (_, index) => ({
   id: `user${index + 11}`,
@@ -25,29 +28,82 @@ export const initialUsersList: User[] = Array.from({ length: 3000 }, (_, index) 
 const initialUsersState: UsersState = {
   entities: {},
   ids: [],
-  selectedUserId: undefined,
+	fetchUsersStatus: "idle",
+	fetchUserStatus: "idle",
 };
+
+
+
 
 export const usersSlice = createSlice({
   name: "users",
   initialState: initialUsersState,
+
+	selectors: {
+		selectUserById: (state, userId: UserId) => state.entities[userId],
+		selectSortedUsers: createSelector(
+			(state: UsersState) => state.ids,
+			(state: UsersState) => state.entities,
+			(_: UsersState, sort: "asc" | "desc") => sort,
+			(ids, entities, sort) =>
+				ids
+					.map((id) => entities[id])
+					.filter((user): user is User => !!user)
+					.sort((a, b) => {
+						if (sort === "asc") {
+							return a.name.localeCompare(b.name);
+						} else {
+							return b.name.localeCompare(a.name);
+						}
+					})
+		),
+		selectIsFetchUsersPending: (state) => state.fetchUsersStatus === "pending",
+		selectIsFetchUsersIdle: (state) => state.fetchUsersStatus === "idle",
+
+		selectIsFetchUserPending: (state) => state.fetchUserStatus === "pending",
+	},
+
   reducers: {
-    selected: (state, action: PayloadAction<{ userId: UserId }>) => {
-      state.selectedUserId = action.payload.userId;
-    },
-    selectRemove: (state) => {
-      state.selectedUserId = undefined;
-    },
-    stored: (state, action: PayloadAction<{ users: User[] }>) => {
+		fetchUsersPending: (state) => {
+			state.fetchUsersStatus = "pending";
+		},
+	fetchUsersSuccess: (state, action: PayloadAction<{ users: User[] }>) => {
       const { users } = action.payload;
+
+			state.fetchUsersStatus = "success";
       state.entities = users.reduce((acc, user) => {
         acc[user.id] = user;
         return acc;
       }, {} as Record<UserId, User>);
       state.ids = users.map((user) => user.id);
     },
+		fetchUsersFailed: (state) => {
+			state.fetchUsersStatus = "failed";
+		},
+
+
+		fetchUserPending: (state) => {
+			state.fetchUserStatus = "pending";
+		},
+		fetchUserSuccess: (state, action: PayloadAction<{ user: User }>) => {
+			const { user } = action.payload;
+			console.log('user in slice', user);
+			state.fetchUserStatus = "success";
+			state.entities[user.id] = user;
+			// Optionally update ids if necessary
+			if (!state.ids.includes(user.id)) {
+				state.ids.push(user.id);
+			}
+		},
+		fetchUserFailed: (state) => {
+			state.fetchUserStatus = "failed";
+		},
+
   },
+
+
   extraReducers: (builder) => {
+		//@ts-expect-error: TS2345
     builder.addCase("usersStored", (state, action: PayloadAction<{ users: User[] }>) => {
       const { users } = action.payload;
       state.entities = users.reduce((acc, user) => {
@@ -59,21 +115,3 @@ export const usersSlice = createSlice({
   },
 });
 
-export const usersSelectors = {
-  selectSelectedUserId: (state: AppState) => state.users.selectedUserId,
-  selectSortedUsers: createAppSelector(
-    (state: AppState) => state.users.ids,
-    (state: AppState) => state.users.entities,
-    (_: AppState, sort: "asc" | "desc") => sort,
-    (ids, entities, sort) =>
-      ids
-        .map((id) => entities[id])
-        .sort((a, b) => {
-          if (sort === "asc") {
-            return a.name.localeCompare(b.name);
-          } else {
-            return b.name.localeCompare(a.name);
-          }
-        })
-  ),
-};

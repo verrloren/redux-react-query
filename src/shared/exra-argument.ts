@@ -1,4 +1,4 @@
-import { api } from "@/shared/api";
+import { baseApi as api } from "@/shared/api";
 // import { router } from "./services/navigation"
 
 

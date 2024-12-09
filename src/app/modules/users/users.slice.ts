@@ -1,6 +1,6 @@
+import { createSlice } from "@/shared/redux";
 import { createSelector, PayloadAction } from "@reduxjs/toolkit";
 import { fetchUsers } from "./model/fetch-users";
-import { createSlice } from "@/shared/redux";
 
 export type UserId = string;
 

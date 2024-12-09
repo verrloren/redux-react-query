@@ -26,11 +26,6 @@
       "description": "John Doe is a web developer and designer"
     },
     {
-      "id": "user7",
-      "name": "John Smith",
-      "description": "John Smith is a web developer and designer"
-    },
-    {
       "id": "user8",
       "name": "Jane Smith",
       "description": "Jane Smith is a web developer and designer"

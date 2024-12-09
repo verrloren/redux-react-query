@@ -1,15 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { countersReducer } from "@/app/modules/counters/counters.slice";
-import { usersSlice } from "@/app/modules/users/users.slice";
 import { extraArgument } from '@/shared/exra-argument';
+import { baseApi } from '@/shared/api';
 
 export const store = configureStore({
   reducer: {
-    [usersSlice.name]: usersSlice.reducer,
     counters: countersReducer,
+		[baseApi.reducerPath]: baseApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({ thunk: { extraArgument } }),
+    getDefaultMiddleware({ thunk: { extraArgument } }).concat(
+			baseApi.middleware
+		),
 });
 
 export default store;

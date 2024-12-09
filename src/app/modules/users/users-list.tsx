@@ -1,29 +1,29 @@
-import { useEffect, useState } from "react";
-import { useAppSelector, useAppStore } from "../../hooks/react-redux";
-import { UserId, usersSlice } from "./users.slice";
-import { useDispatch } from "react-redux";
-import { fetchUsers } from "./model/fetch-users";
+import {  useMemo, useState } from "react";
+import { User } from "./users.slice";
 import { useRouter } from "next/navigation";
-import { AppDispatch } from "@/shared/redux";
+import { usersApi } from "./api";
 
 export function UsersList() {
   const [sortType, setSortType] = useState<"asc" | "desc">("asc");
-	const dispatch = useDispatch<AppDispatch>();
-	const appStore = useAppStore();
-	const isPending = useAppSelector(usersSlice.selectors.selectIsFetchUsersPending);
-
-  useEffect(() => {
-    dispatch(fetchUsers());
-  }, [dispatch, appStore]);
 
 
+	const { data: users, isLoading } = usersApi.useGetUsersQuery()
+	
+	const sortedUsers = useMemo(() => {
+		return [...(users ?? [])].sort((a, b) => {
+			if (sortType === "asc") {
+				return a.name.localeCompare(b.name);
+			} else {
+				return b.name.localeCompare(a.name);
+			}
+		})
+	
+	}, [users, sortType])
 
-  const sortedUsers = useAppSelector((state) =>	
-    usersSlice.selectors.selectSortedUsers(state, sortType)
-  );
 
 
-	if(isPending) {
+
+	if(isLoading) {
 		return <div>Loading...</div>
 	}
 
@@ -46,7 +46,7 @@ export function UsersList() {
           </div>
           <ul className="list-none">
             {sortedUsers.map((user) => (
-              <UserListItem userId={user.id} key={user.id} />
+              <UserListItem user={user} key={user.id} />
             ))}
           </ul>
         </div>
@@ -54,11 +54,10 @@ export function UsersList() {
   );
 }
 
-function UserListItem({ userId }: { userId: UserId }) {
+function UserListItem({ user }: { user: User }) {
 	const router = useRouter();
-  const user = useAppSelector((state) => state.users.entities[userId]);
   const handleUserClick = () => {
-    router.push(`/users/${userId}`);
+    router.push(`/users/${user.id}`);
   };
 	if(!user) return null;
   return (
